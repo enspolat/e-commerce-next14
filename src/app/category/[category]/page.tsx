@@ -12,9 +12,17 @@ type CategoryPageProps = {
 export default async function CategoryPage({ params }: CategoryPageProps) {
   const { category } = params;
 
-  const products = await ProductsByCategoryFetcher(category);
+  let products: Product[] = [];
+  let isFetchFailed = false;
 
-  if (!products || products.length === 0) {
+  try {
+    products = await ProductsByCategoryFetcher(category);
+  } catch (error) {
+    console.error(`Failed to load products for category "${category}":`, error);
+    isFetchFailed = true;
+  }
+
+  if (!isFetchFailed && products.length === 0) {
     notFound();
   }
   return (
@@ -25,6 +33,12 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           Products in {category}
         </h1>
       </div>
+
+      {isFetchFailed && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded shadow-lg">
+          Products could not be loaded right now. Please try again shortly.
+        </div>
+      )}
 
       <div
         className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5

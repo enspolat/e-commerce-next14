@@ -7,7 +7,8 @@ export async function fetchProducts(
 ): Promise<{ products: Product[]; total: number }> {
   try {
     const response = await axios.get<{ products: Product[]; total: number }>(
-      `https://dummyjson.com/products?skip=${skip}&limit=${limit}`
+      `https://dummyjson.com/products?skip=${skip}&limit=${limit}`,
+      { timeout: 10000 }
     );
     return {
       products: response.data.products,
@@ -20,7 +21,9 @@ export async function fetchProducts(
 }
 export async function fetchProduct(id: string | number) {
   try {
-    const response = await axios.get(`https://dummyjson.com/products/${id}`);
+    const response = await axios.get(`https://dummyjson.com/products/${id}`, {
+      timeout: 10000,
+    });
     return response.data;
   } catch (error) {
     throw new Error("Product Not Found");
@@ -30,7 +33,8 @@ export async function fetchProduct(id: string | number) {
 export async function searchProducts(query: string): Promise<Product[]> {
   try {
     const response = await axios.get<{ products: Product[] }>(
-      `https://dummyjson.com/products/search?q=${query}`
+      `https://dummyjson.com/products/search?q=${query}`,
+      { timeout: 10000 }
     );
     return response.data.products;
   } catch (error) {

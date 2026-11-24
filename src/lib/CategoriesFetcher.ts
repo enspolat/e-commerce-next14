@@ -4,7 +4,8 @@ import { Category } from "./types";
 export async function fetchCategories(): Promise<Category[]> {
   try {
     const response = await axios.get<Category[]>(
-      "https://dummyjson.com/products/categories"
+      "https://dummyjson.com/products/categories",
+      { timeout: 10000 }
     );
     return response.data;
   } catch (error) {

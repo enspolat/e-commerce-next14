@@ -8,11 +8,23 @@ type HomeProps = {
 };
 
 export default async function Home({ searchParams }: HomeProps) {
-  const currentPage = searchParams.page ? parseInt(searchParams.page) : 1;
+  const parsedPage = searchParams.page ? parseInt(searchParams.page, 10) : 1;
+  const currentPage = Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1;
   const limit = 30;
   const skip = (currentPage - 1) * limit;
 
-  const { products, total } = await fetchProducts(skip, limit);
+  let products: Product[] = [];
+  let total = 0;
+  let isFetchFailed = false;
+
+  try {
+    const result = await fetchProducts(skip, limit);
+    products = result.products;
+    total = result.total;
+  } catch (error) {
+    console.error("Failed to load products on the home page:", error);
+    isFetchFailed = true;
+  }
 
   const totalPages = Math.ceil(total / limit);
 
@@ -25,13 +37,21 @@ export default async function Home({ searchParams }: HomeProps) {
         </h1>
       </div>
 
+      {isFetchFailed && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded shadow-lg">
+          Products could not be loaded right now. Please try again shortly.
+        </div>
+      )}
+
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 my-4 gap-6">
         {products.map((product: Product) => (
           <ProductCard key={product.id} product={product} />
         ))}
       </div>
 
-      <Pagination currentPage={currentPage} totalPages={totalPages} />
+      {!isFetchFailed && (
+        <Pagination currentPage={currentPage} totalPages={totalPages} />
+      )}
     </div>
   );
 }

@@ -6,7 +6,8 @@ export async function ProductsByCategoryFetcher(
   productId?: number
 ): Promise<Product[]> {
   const response = await axios.get<{ products: Product[] }>(
-    `https://dummyjson.com/products/category/${category}`
+    `https://dummyjson.com/products/category/${category}`,
+    { timeout: 10000 }
   );
 
   const products = response.data.products;
